@@ -18,8 +18,21 @@ def search_pc_component(component_name: str, color: str = "") -> str:
     client = SearchClient(ctx=ctx)
 
     color_str = f" {color}" if color else ""
-    query = f"{component_name}{color_str} 推荐 价格 2025"
-    response = client.web_search(query=query, count=8)
+    query = f"{component_name}{color_str} 价格 2025"
+    # 优先从京东搜索价格，确保价格准确性
+    response = client.search(
+        query=query,
+        search_type="web",
+        count=8,
+        sites="jd.com"
+    )
+
+    # 如果京东搜索结果不足，补充全网搜索
+    if not response.web_items or len(response.web_items) < 3:
+        response_extra = client.web_search(query=f"{component_name}{color_str} 京东价格 2025", count=5)
+        if response_extra.web_items:
+            combined_items = list(response.web_items or []) + list(response_extra.web_items)
+            response.web_items = combined_items
 
     if not response.web_items:
         return f"未找到{color_str} {component_name} 的相关价格信息"
@@ -48,8 +61,27 @@ def search_pc_build_config(budget: str, usage: str, color: str = "", aesthetic: 
 
     aesthetic_str = f" {aesthetic}" if aesthetic else ""
     color_str = f" {color}" if color else ""
-    query = f"2025年{budget}电脑配置推荐{color_str}{aesthetic_str} {usage} 装机清单"
-    response = client.web_search_with_summary(query=query, count=10)
+    query = f"2025年{budget}电脑配置推荐{color_str}{aesthetic_str} {usage} 装机清单 京东价格"
+    # 优先从京东搜索配置方案和价格
+    response = client.search(
+        query=query,
+        search_type="web",
+        count=10,
+        sites="jd.com",
+        need_summary=True
+    )
+
+    # 如果京东结果不足，补充全网搜索
+    if not response.web_items or len(response.web_items) < 3:
+        response_extra = client.web_search_with_summary(
+            query=f"2025年{budget}电脑配置推荐{color_str}{aesthetic_str} {usage} 京东价格",
+            count=5
+        )
+        if response_extra.web_items:
+            combined_items = list(response.web_items or []) + list(response_extra.web_items)
+            response.web_items = combined_items
+        if not response.summary and response_extra.summary:
+            response.summary = response_extra.summary
 
     output_parts = []
     if response.summary:
