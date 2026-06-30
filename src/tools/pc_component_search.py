@@ -18,7 +18,7 @@ def search_pc_component(component_name: str, color: str = "") -> str:
     client = SearchClient(ctx=ctx)
 
     color_str = f" {color}" if color else ""
-    query = f"{component_name}{color_str} 价格 2025"
+    query = f"{component_name}{color_str} 价格 2026"
     # 优先从京东搜索价格，确保价格准确性
     response = client.search(
         query=query,
@@ -29,7 +29,7 @@ def search_pc_component(component_name: str, color: str = "") -> str:
 
     # 如果京东搜索结果不足，补充全网搜索
     if not response.web_items or len(response.web_items) < 3:
-        response_extra = client.web_search(query=f"{component_name}{color_str} 京东价格 2025", count=5)
+        response_extra = client.web_search(query=f"{component_name}{color_str} 京东价格 2026", count=5)
         if response_extra.web_items:
             combined_items = list(response.web_items or []) + list(response_extra.web_items)
             response.web_items = combined_items
@@ -61,7 +61,7 @@ def search_pc_build_config(budget: str, usage: str, color: str = "", aesthetic: 
 
     aesthetic_str = f" {aesthetic}" if aesthetic else ""
     color_str = f" {color}" if color else ""
-    query = f"2025年{budget}电脑配置推荐{color_str}{aesthetic_str} {usage} 装机清单 京东价格"
+    query = f"2026年{budget}电脑配置推荐{color_str}{aesthetic_str} {usage} 装机清单 京东价格"
     # 优先从京东搜索配置方案和价格
     response = client.search(
         query=query,
@@ -74,7 +74,7 @@ def search_pc_build_config(budget: str, usage: str, color: str = "", aesthetic: 
     # 如果京东结果不足，补充全网搜索
     if not response.web_items or len(response.web_items) < 3:
         response_extra = client.web_search_with_summary(
-            query=f"2025年{budget}电脑配置推荐{color_str}{aesthetic_str} {usage} 京东价格",
+            query=f"2026年{budget}电脑配置推荐{color_str}{aesthetic_str} {usage} 京东价格",
             count=5
         )
         if response_extra.web_items:
